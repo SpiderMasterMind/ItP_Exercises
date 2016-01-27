@@ -1,6 +1,4 @@
-require 'pry'
 
-# constants
 INITIAL_MARKER = ' '
 PLAYER_MARKER = 'X'
 COMP_MARKER = 'O'
@@ -8,11 +6,9 @@ WINNING_LINES = [[1, 2, 3], [4, 5, 6], [7, 8, 9]] +
                 [[1, 4, 7], [2, 5, 8], [3, 6, 9]] +
                 [[1, 5, 9], [3, 5, 7]]
 
-# initial values
 score = { player: 0, computer: 0 }
 current_player = ''
 
-# methods
 def prompt(msg)
   puts "=> #{msg}"
 end
@@ -40,32 +36,27 @@ def who_goes_first
   prompt "Who goes first? 1. You 2. Comp 3. Random"
   first = gets.chomp.to_s
   if first == '1'
-    return "player"
+    "player"
   elsif first == '2'
-    return "computer"
+    "computer"
   else
     random_player
   end
 end
 
 def random_player
-  who = rand(1..2)
-  if who == 1
-    current_player ='player'
-  else current_player = 'computer'
-  end
+  current_player = %w(player computer).sample
 end
 
 def alternate_player(current_player)
 if current_player == 'player'
-  return "computer"
-elsif
-  current_player == 'computer'
-  return "player"
+ "computer"
+elsif current_player == 'computer'
+ "player"
 end
 end
 
-def initialise_board # creates new board hash with ' ' for each values
+def initialise_board
   new_board = {}
   (1..9).each { |num| new_board[num] = INITIAL_MARKER }
   new_board
@@ -77,7 +68,7 @@ def joinor(brd, delimiter, word = 'or')
 end
 
 def empty_squares(brd)
-  brd.keys.select { |num| brd[num] == INITIAL_MARKER } # key of all empty values
+  brd.keys.select { |num| brd[num] == INITIAL_MARKER }
 end
 
 def places_piece!(brd, current_player)
@@ -101,36 +92,29 @@ end
 
 def find_square(line, board, marker)
   if board.values_at(*line).count(marker) == 2 
-    board.select{ |k, v| line.include?(k) && v == INITIAL_MARKER }.keys.first
-  else
-    nil
-  end
-end
-
-def middle_free?(board)
-  if board[5] == ' '
+    board.select{ |position, marker| line.include?(position) && marker == INITIAL_MARKER }.keys.first
   end
 end
 
 def computer_places_piece!(brd)
   square = nil
-  WINNING_LINES.each do |line| # offence
+  WINNING_LINES.each do |line| # find offensive position
     square = find_square(line, brd, COMP_MARKER)
     break if square
   end
  
   if !square
-    WINNING_LINES.each do |line| # defence
+    WINNING_LINES.each do |line| # find defensive position
       square = find_square(line, brd, PLAYER_MARKER)
       break if square
     end
   end
 
-  if !square && brd[5] == ' '
+  if !square && brd[5] == ' ' # go to middle
     square = 5
   end
   
-  if !square # go anywhere
+  if !square # go anywhere else randomly
     square = empty_squares(brd).sample 
   end
   
@@ -164,18 +148,16 @@ def update_score(winner, score)
   end
 end
 
-def reset_score(score)
+def reset_score!(score)
   score[:player] = 0
   score[:computer] = 0
 end
 
 def match_score_reached?(score)
-  if score[:player] == 3 || score[:computer] == 3
-    return true
-end
+  score[:player] == 3 || score[:computer] == 3
 end
 
-def game_winner(score)
+def display_game_winner(score)
   if score[:player] > score[:computer]
     prompt "You win the match!"
   else
@@ -183,19 +165,22 @@ def game_winner(score)
   end
 end
 
-# game loop
+def game_loop(board, current_player)
+  loop do
+    display_board(board)
+    places_piece!(board, current_player)
+    current_player = alternate_player(current_player)
+    break if someone_won?(board) || board_full?(board)
+  end
+end
+
 loop do
   until match_score_reached?(score)
         
     board = initialise_board
     current_player = who_goes_first
 
-    loop do
-      display_board(board)
-      places_piece!(board, current_player)
-      current_player = alternate_player(current_player)
-      break if someone_won?(board) || board_full?(board)
-    end
+    game_loop(board, current_player)
     
     display_board(board)
     
@@ -217,4 +202,4 @@ loop do
   reset_score(score)
   answer = gets.chomp
   break unless answer.downcase.start_with?('y')
-end
+end 
