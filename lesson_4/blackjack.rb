@@ -81,18 +81,6 @@ def convert_hand(player_hand)
   end
 end
 
-#def calculate_winner(player_final_value, dealer_value, score)
-#  if ((BUSTED_VALUE - player_final_value) < (BUSTED_VALUE - dealer_value)) || dealer_value > 21
-#    prompt "You Win!"
-#    score[:player] += 1
-#  elsif player_final_value == dealer_value
-#    prompt "Its a draw"
-#  else
- #   prompt "You lose!"
- #   score[:dealer] += 1
- # end
-#end
-
 def display_winner(player_final_value, dealer_value, score)
   if player_final_value > 21
     prompt "You are bust!"
@@ -109,12 +97,6 @@ def display_winner(player_final_value, dealer_value, score)
   else prompt "Its a draw!"
   end
 end
-
-#def increment_score(score, player_value)
-#  if player_value > 21
-#    score[:dealer] += 1
-#  end
-#end
 
 def display_score(score)
   prompt "Player: #{score[:player]}"
@@ -148,10 +130,6 @@ loop do
         break
       end
     end
-    if player_bust?(player_value)
-       #prompt "You are bust!"
-      # score[:dealer] += 1
-    end
     loop do
       player_final_value = player_value
       dealer_value = find_player_value(dealer_hand)
@@ -167,7 +145,6 @@ loop do
     end
     display_final_hands(player_hand, player_final_value, dealer_hand, dealer_value)
     display_winner(player_final_value, dealer_value, score)
-    #increment_score(score, player_value)
     gets.chomp
     break if someone_wins?(score)
   end
